@@ -17,6 +17,7 @@ global batch_count
 #filename = 'data/dataEven_1.npy'
 batch_count = 0
 
+#! rearrange here
 '''
 def arr1Dto2D(arr):
     arr2D = [[None] *288] *288

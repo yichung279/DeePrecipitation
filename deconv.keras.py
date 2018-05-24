@@ -11,7 +11,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 global batch_count
 batch_count = 0
-
+#! Todo: rearrange function/structure ex: batch_generator
 def batch_generator(file_siize):
     if 1000 % file_size != 0:
         print('wrong size!')
