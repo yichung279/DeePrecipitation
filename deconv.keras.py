@@ -5,141 +5,95 @@ import os
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Conv2DTranspose, Conv2D,Flatten, MaxPooling2D, UpSampling2D
 from keras.utils import  np_utils
+from mlxtend.preprocessing import shuffle_arrays_unison
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-global filename
-global data
 global batch_count
-filename = 'data/dataEven_1.npy'
-data = np.load(filename)
 batch_count = 0
-#def load_data():
-def arr1Dto2D(arr):
-    arr2D = [[None] *288] *288
-    for i in range(288):
-        for j in range(288):
-            arr2D[i][j] = arr[288*i + j]
-    return arr2D
 
-def batch_generator(batch_siize, train='True'):
-
-    if 1000 % batch_size != 0:
-        print('wrong batch size!')
+def batch_generator(file_siize):
+    if 1000 % file_size != 0:
+        print('wrong size!')
         os._exit()
-    if train :
-        global data
-        global filename
-        global batch_count
-        batch_count += 1
 
-        file_size = int(1000 / batch_size) # how much batches in a file
-        file_num = int(batch_count / file_size) % 6
-        batch_num = int(batch_count % file_size)
+    global batch_count
+    file_num = int(batch_count % 11)
+    batch_count += 1
 
-        filenames = glob('data/dataEven_*.npy')
-        filenames.sort()
-        # try to do few times of load
-        if filenames[file_num] != filename:
-            filename = filenames[file_num]
+    filenames = glob('data/radarTrend.train.*.input.npy') 
+    filenames.sort()
+    x_train = np.load(filenames[file_num])
+    
+    filenames = glob('data/radarTrend.train.*.label.npy') 
+    filenames.sort()
+    y_train = np.load(filenames[file_num])
 
-            data = np.load(filename)
-            np.random.shuffle(data)
-    else :
-        batch_num = 0
+    x_train, y_train = shuffle_arrays_unison(arrays=[x_train, y_train])
+    x_train = np.split(x_train, file_size)
+    y_train = np.split(y_train, file_size)
+    x_train = np.array(x_train)
+    y_train = np.array(y_train)
 
-        filenames = glob('data/dataOdd_*.npy')
-        filenames.sort()
-        file_num = np.random.choice(6)
-        filename = filenames[file_num]
-        data = np.load(filename)
-        np.random.shuffle(data)
+    file_num = np.random.choice(10)
 
-    label = []
-    x = []
-    label_holder = [0] * 15
+    filenames = glob('data/radarTrend.test.*.input.npy')
+    x_valid = np.load(filenames[file_num])
 
-    for i in range(batch_num * batch_size, (batch_num+1) * batch_size):
-        #label
-        sublabel = []
-        for j in range(data.shape[2]):
-            label_holder[data[i][1][j]] = 1
-            sublabel.append(label_holder)
-            label_holder = [0] * 15
-        label.append(arr1Dto2D(sublabel))
-        #input
-        subX = []
-        chanel1 = arr1Dto2D(data[i][1])
-        chanel2 = arr1Dto2D(data[i][2])
-        chanel3 = arr1Dto2D(data[i][3])
-        subX.append(chanel1)
-        subX.append(chanel2)
-        subX.append(chanel3)
-        x.append(np.transpose(subX))
+    filenames = glob('data/radarTrend.test.*label.npy')
+    y_valid = np.load(filenames[file_num])
 
-    label = np.array(label)
-    x = np.array(x)
-    return [x, label]
- 
+    x_valid, y_valid = shuffle_arrays_unison(arrays=[x_valid, y_valid])
+    x_valid = np.split(x_valid, file_size)
+    y_valid = np.split(y_valid, file_size)
+    x_valid = np.array(x_valid)
+    y_valid = np.array(y_valid)
+
+    return x_train, y_train, x_valid, y_valid
 
 def build_model():
     #建立模型
     model = Sequential()
     #將模型疊起
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same', input_shape=(288, 288, 3), activation='relu')) 
-    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same', activation='relu')) 
+    model.add(Conv2D(filters=64, kernel_size=(3, 3), padding='same', input_shape=(144, 144, 3), activation='relu')) 
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    #model.add(Conv2D(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
+    #model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2D(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
+    #model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2D(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Conv2D(filters=4096, kernel_size=(9, 9), padding='valid', activation='relu'))
-    model.add(Conv2D(filters=4096, kernel_size=(1, 1), padding='valid', activation='relu'))
+    #model.add(Conv2D(filters=4096, kernel_size=(1, 1), padding='valid', activation='relu'))
 
     model.add(Conv2DTranspose(filters=512, kernel_size=(9, 9), padding='valid', activation='relu')) 
-
     model.add(UpSampling2D())    
 
     model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    
     model.add(UpSampling2D())    
 
+    #model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2DTranspose(filters=512, kernel_size=(3, 3), padding='same', activation='relu')) 
-
     model.add(UpSampling2D())
  
     model.add(Conv2DTranspose(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2DTranspose(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2DTranspose(filters=256, kernel_size=(3, 3), padding='same', activation='relu')) 
-
     model.add(UpSampling2D())
 
-    model.add(Conv2DTranspose(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
-    model.add(Conv2DTranspose(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
- 
-    model.add(UpSampling2D())
+    #model.add(Conv2DTranspose(filters=128, kernel_size=(3, 3), padding='same', activation='relu')) 
+    #model.add(UpSampling2D())
 
-    model.add(Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2DTranspose(filters=64, kernel_size=(3, 3), padding='same', activation='relu')) 
     model.add(Conv2DTranspose(filters=15, kernel_size=(3, 3), padding='same', activation='softmax')) 
 
@@ -147,26 +101,24 @@ def build_model():
 
     return model
 if __name__ == '__main__':
-    batch_size = 20
+    batch_size = 50
+    file_size = int(1000/batch_size)
     epochs = 100
-    file_nums = [0, 1, 2, 3, 4, 5] 
-    #model = build_model()
-    model = load_model('model/latest_model.h5')
+    model = build_model()
     #開始訓練模型
     model.compile(loss='categorical_crossentropy',optimizer="adam", metrics=['categorical_accuracy'])
     for e in range(epochs):
-        for i in range(int(6000 / batch_size)): 
-            #! Todo: step by step (for memery)
-            x_train, y_train = batch_generator(batch_size)
-            print("epoch %d,step %d:" % (e,i))
-            train = model.train_on_batch(x_train, y_train)
-            print('train:', train)
-            x_test, y_test = batch_generator(batch_size, train=False)
-            valid = model.evaluate(x_test, y_test)
-            print('valid:' ,valid)
-            if i == 0:
-                model.save('model/first_model.h5')
-                print('model saved')
-            elif i % 50 == 0 :
-                model.save('model/latest_model.h5')
-                print('model saved')
+        for i in range(11):
+            x_train, y_train, x_valid, y_valid = batch_generator(file_size) 
+            for j in range(file_size): 
+                train = model.train_on_batch(x_train[j], y_train[j])
+                #print('epoch :%d,step, %d,  train: %f valid %f'%(e, 1000*i+j , train[0]))
+                print(train[0])
+                valid = model.evaluate(x_valid[j], y_valid[j])
+                print('              +----> valid: %f'%(valid[0]))
+                if i * (file_size) + j == 0:
+                    model.save('model/first_model.h5')
+                    print('model saved')
+                elif i * (file_size) + j % 50 == 0 :
+                    model.save('model/latest_model.h5')
+                    print('model saved')
