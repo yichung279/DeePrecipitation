@@ -1,7 +1,7 @@
 data/
 data_old/
 model/
-feature/
+feature/*
 __pycache__/
 *.png
 test*

@@ -4,6 +4,7 @@ from glob import glob
 from random import shuffle
 from queue import Queue
 from PIL import Image
+from keras.utils import to_categorical
 
 class ImageLoader():
 
@@ -44,9 +45,10 @@ class ImageLoader():
 
 class DataLoader():
 
-    def __init__(self, file_glob_pattern, batch_size):
+    def __init__(self, file_glob_pattern, batch_size, num_classes = 15):
         self.files = glob(file_glob_pattern)
 
+        self.num_classes = num_classes
         self.batch_size = batch_size
         self.ptr = 1
 
@@ -69,19 +71,20 @@ class DataLoader():
     def __next__(self):
 
         if self.holder.shape[0] < self.batch_size:
-            if self.ptr < len(self.files):
-                self.load()
-            else:
-                raise StopIteration
+            if self.ptr >= len(self.files):
+                self.ptr = 0
+                shuffle(self.files)
+
+            self.load()
 
         batch, self.holder = np.split(self.holder, [self.batch_size], axis = 0)
+        x, y = np.split(batch.astype(float), [9], axis = 3)
 
-        return np.split(batch.astype(float), [9], axis = 3)
+        return x, to_categorical(y, num_classes = self.num_classes)
 
 if __name__ == '__main__':
 
     data_loader = DataLoader(file_glob_pattern = 'feature/train.*.npy',
                              batch_size = 24)
 
-    for x, y in data_loader:
-        print(x.shape, y.shape)
+    print(len(data_loader))
