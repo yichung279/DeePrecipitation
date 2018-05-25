@@ -178,14 +178,15 @@ def build_feature(filelist, dest_prefix, days = 3):
 
         features.append(feature)
 
-        print(len(features))
-
         if len(features) % 1000 == 0:
+            print(idx)
             np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
             idx += 1
 
-            features = []
+           features = []
+
+    np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
 if __name__ ==  '__main__':
 
