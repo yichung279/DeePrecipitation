@@ -153,12 +153,11 @@ def get_classification(pixels):
             if pixels[i][j][0] >= 175 and pixels[i][j][1] <= 50 and pixels[i][j][2] <= 50:
                 arr[i][j] = 1
 
-    return arr
+    return np.expand_dims(arr, axis = 2)
 
 
 def build_feature(filelist, dest_prefix, days = 3):
     features = []
-    labels = []
 
     image_loader = ImageLoader(cache_size = 10)
 
@@ -177,21 +176,18 @@ def build_feature(filelist, dest_prefix, days = 3):
         feature = [image_loader.read(image) for image in data]
 
         label = get_classification(feature[0])
-        feature = np.concatenate(feature[1:], axis = 2)
+        feature = np.concatenate(feature[1:] + [label], axis = 2)
 
         features.append(feature)
-        labels.append(label)
 
         print(len(features))
 
-        if len(features) % 1000 == 0:
-            np.save('%s.feature.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
-            np.save('%s.label.%d.npy' % (dest_prefix, idx), np.stack(labels, axis = 0))
+        if len(features) % 100 == 0:
+            np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
             idx += 1
 
             features = []
-            labels = []
 
 if __name__ ==  '__main__':
 
