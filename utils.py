@@ -53,7 +53,6 @@ class DataLoader():
         shuffle(self.files)
 
         self.holder = np.load(self.files[0])
-
         np.random.shuffle(self.holder)
 
     def load(self):
@@ -82,7 +81,7 @@ class DataLoader():
 if __name__ == '__main__':
 
     data_loader = DataLoader(file_glob_pattern = 'feature/train.*.npy',
-                             batch_size = 20)
+                             batch_size = 24)
 
     for x, y in data_loader:
         print(x.shape, y.shape)

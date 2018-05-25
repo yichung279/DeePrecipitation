@@ -145,13 +145,13 @@ def get_image_pixel(file):
 
 def get_classification(pixels):
 
-    arr = np.zeros((pixels.shape[0], pixels.shape[1]), dtype = np.uint8)
+    arr = np.zeros((pixels.shape[0], pixels.shape[1], 1), dtype = np.uint8)
 
     for i in range(pixels.shape[0]):
         for j in range(pixels.shape[1]):
             arr[i][j] = classify(pixels[i][j])
 
-    return np.expand_dims(arr, axis = 2)
+    return arr
 
 
 def build_feature(filelist, dest_prefix, days = 3):
