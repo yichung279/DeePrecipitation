@@ -149,7 +149,7 @@ def get_classification(pixels):
 
     for i in range(pixels.shape[0]):
         for j in range(pixels.shape[1]):
-            arr[i][j] = classify(pixels[i][j])
+            arr[i][j][0] = classify(pixels[i][j])
 
     return arr
 
