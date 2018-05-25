@@ -20,7 +20,7 @@ def is_complete(tstamps):
 
     return True
 
-# Deprecate
+#!TODO: classification logic
 def classify(pixel) :
     #grayscale
     if pixel[0] ==pixel[1] and pixel[1] == pixel[2]:
@@ -37,7 +37,7 @@ def classify(pixel) :
     #green
     elif pixel[0] <= 50 and pixel[2] <= 50 :
         if  pixel[1] >= 225:
-            return 4 
+            return 4
         elif  pixel[1] >= 175:
             return 5
         else:
@@ -149,9 +149,7 @@ def get_classification(pixels):
 
     for i in range(pixels.shape[0]):
         for j in range(pixels.shape[1]):
-            #!TODO: More classification
-            if pixels[i][j][0] >= 175 and pixels[i][j][1] <= 50 and pixels[i][j][2] <= 50:
-                arr[i][j] = 1
+            arr[i][j] = classify(pixels[i][j])
 
     return np.expand_dims(arr, axis = 2)
 
@@ -182,7 +180,7 @@ def build_feature(filelist, dest_prefix, days = 3):
 
         print(len(features))
 
-        if len(features) % 100 == 0:
+        if len(features) % 1000 == 0:
             np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
             idx += 1
