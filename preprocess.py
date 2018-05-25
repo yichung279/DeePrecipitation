@@ -184,7 +184,7 @@ def build_feature(filelist, dest_prefix, days = 3):
 
             idx += 1
 
-           features = []
+            features = []
 
     np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
