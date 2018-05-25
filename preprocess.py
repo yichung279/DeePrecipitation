@@ -193,7 +193,6 @@ def build_feature(filelist, dest_prefix, days = 3):
             features = []
             labels = []
 
-
 if __name__ ==  '__main__':
 
     even_day, odd_day = get_filelist('image_ml')

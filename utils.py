@@ -92,7 +92,7 @@ class DataLoader():
         x_batch, self.x_hold = np.split(self.x_hold, [self.batch_size], axis = 0)
         y_batch, self.y_hold = np.split(self.y_hold, [self.batch_size], axis = 0)
 
-        return x_batch, y_batch
+        return x_batchi.astype(float), y_batch.astype(float)
 
 if __name__ == '__main__':
 
