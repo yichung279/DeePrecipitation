@@ -5,6 +5,7 @@ from pprint import pprint
 from PIL import Image
 from queue import Queue
 import numpy as np
+import os
 import re
 import time
 
@@ -184,8 +185,8 @@ def build_feature(filelist, dest_prefix, days = 3):
         print(len(features))
 
         if len(features) % 100 == 0:
-            np.save(np.stack(features, axis = 0), '%s.feature.%d.npy' % (dest_prefix, idx))
-            np.save(np.stack(labels, axis = 0), '%s.label.%d.npy' % (dest_prefix, idx))
+            np.save('%s.feature.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
+            np.save('%s.label.%d.npy' % (dest_prefix, idx), np.stack(labels, axis = 0))
 
             idx += 1
 
@@ -196,6 +197,9 @@ def build_feature(filelist, dest_prefix, days = 3):
 if __name__ ==  '__main__':
 
     even_day, odd_day = get_filelist('image_ml')
+
+    if not os.path.isdir('feature'):
+        os.makedirs('feature')
 
     build_feature(even_day, dest_prefix = 'feature/train')
     build_feature(odd_day, dest_prefix = 'feature/valid')
