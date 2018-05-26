@@ -14,3 +14,13 @@ Predict weather with Deconvolution Net
 ## Train
 
 `python3 keras/deconv.py`
+
+## Evaluation
+
+`python3 keras/predict.py`
+
+## Draw image
+
+`python3 keras/draw.py`
+
+- result will be `output` folder
