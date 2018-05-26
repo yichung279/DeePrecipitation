@@ -25,12 +25,11 @@ label2pixel = [
     [185,   8, 109],
 ]
 
-def write_image(filename, img_pred):
-    img_cls = np.argmax(img_pred, axis = 2)
-    image = np.zeros((img_pred.shape[0], img_pred.shape[1], 3))
+def write_image(filename, img_cls):
+    image = np.zeros((img_cls.shape[0], img_cls.shape[1], 3))
 
-    for i in range(img_pred.shape[0]):
-        for j in range(img_pred.shape[1]):
+    for i in range(img_cls.shape[0]):
+        for j in range(img_cls.shape[1]):
             image[i][j][0] = label2pixel[img_cls[i][j]][0]
             image[i][j][1] = label2pixel[img_cls[i][j]][1]
             image[i][j][2] = label2pixel[img_cls[i][j]][2]
