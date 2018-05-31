@@ -23,11 +23,13 @@ def is_complete(tstamps):
 #!TODO: classification logic
 def classify(pixel) :
     #grayscale
-    if pixel[0] ==pixel[1] and pixel[1] == pixel[2]:
-        return 0
-        # classify(1~14) by color (blue->green->yellow->red->purple)
+    #if pixel[0] ==pixel[1] and pixel[1] == pixel[2]:
+    #    return 0
+    #elif pixel[0] <= 50 and pixel[2] >= 200:
+    
+    # classify(1~14) by color (blue->green->yellow->red->purple)
     #blue
-    elif pixel[0] <= 50 and pixel[2] >= 200:
+    if pixel[0] <= 50 and pixel[2] >= 200:
         if  pixel[1] >= 200:
             return 1
         elif  pixel[1] >= 100:
