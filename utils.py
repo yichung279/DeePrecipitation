@@ -38,7 +38,7 @@ class ImageLoader():
             return self.__cache[file]
 
         with Image.open(file) as f:
-            img_crop = np.array(f.crop((1639, 1439, 1711, 1511)), dtype = np.uint8)
+            img_crop = np.array(f.crop((1639, 1439, 1711, 1511)).convert('RGB'), dtype = np.uint8)
 
             for i in range(img_crop.shape[0]):
                 for j in range(img_crop.shape[1]):

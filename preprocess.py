@@ -23,7 +23,7 @@ def is_complete(tstamps):
 
 #!TODO: classification logic
 def classify(pixel) :
-    if pixel == [0, 0, 0]:
+    if np.array_equal([0, 0, 0], pixel):
         return 0
     
     rgb = [channel/255 for channel in pixel]
@@ -117,7 +117,20 @@ def build_feature(filelist, dest_prefix, days = 3):
     np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
 if __name__ ==  '__main__':
+    '''    
+    test classify()
+    pixels = [
+        [  0,   0,   0],        # 0
+        [  0,  51, 245],        # 1
+        [  0,  10, 100],        # 1
+        [  0,  20,   0],        # 2
+        [ 30, 200,   0],        # 2
+        [200,   0, 100]         # 2
+    ] 
 
+    for pixel in pixels:
+        print(classify(np.array(pixel)))
+    '''
     even_day, odd_day = get_filelist('image_ml')
 
     if not os.path.isdir('feature'):
