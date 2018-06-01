@@ -84,5 +84,6 @@ if __name__ == '__main__':
     model_ckpt = ModelCheckpoint('model/deconv.keras.h5', verbose = 1, save_best_only = True)
 
     model = build_model()
+    #model = load_model('model/deconv.keras.h5')
     model.compile(loss = 'categorical_crossentropy', optimizer = Adam(lr = 1e-4), metrics = ['accuracy'])
     model.fit_generator(train_loader, steps_per_epoch = 10741 // batch_size, epochs = epochs, validation_data = valid_loader, validation_steps = 11482 // validation_size, callbacks = [model_ckpt])

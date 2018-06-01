@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import sys,time
+import colorsys
 from glob import glob
 from pprint import pprint
 from PIL import Image
@@ -22,92 +23,17 @@ def is_complete(tstamps):
 
 #!TODO: classification logic
 def classify(pixel) :
-    #grayscale
-    #if pixel[0] ==pixel[1] and pixel[1] == pixel[2]:
-    #    return 0
-    #elif pixel[0] <= 50 and pixel[2] >= 200:
-    
-    # classify(1~14) by color (blue->green->yellow->red->purple)
-    #blue
-    if pixel[0] <= 50 and pixel[2] >= 200:
-        if  pixel[1] >= 200:
-            return 1
-        elif  pixel[1] >= 100:
-            return 2
-        else:
-            return 3
-    #green
-    elif pixel[0] <= 50 and pixel[2] <= 50 :
-        if  pixel[1] >= 225:
-            return 4
-        elif  pixel[1] >= 175:
-            return 5
-        else:
-            return 6
-    #orange
-    elif pixel[0] >= 225 and pixel[2] <= 50 :
-        if  pixel[1] >= 225:
-            return 7
-        elif  pixel[1] >= 175:
-            return 8
-        elif  pixel[1] >= 100:
-            return 9
-        else:
-            return 10
-    #dark red
-    elif pixel[1] <= 50 and pixel[2] <= 50:
-        if pixel[0] >= 175:
-            return 11
-        else :
-            return 12
-    #purple
-    elif pixel[1] <= 50 and pixel[2] >= 200:
-        if pixel[0] >= 175:
-            return 13
-        else :
-            return 14
-    else:
+    if pixel == [0, 0, 0]:
         return 0
-
-# filenames(1000, 4)
-# Deprecate
-def make_file(filenames, datafile_name) :
-
-    print(datafile_name + ':')    
-
-    labeldata = [] 
-    inputdata = []
     
-    for p, filename in enumerate(filenames) :
-        if p % 20 == 0:
-            sys.stdout.write('>')
-            sys.stdout.flush()
-
-        train_data = [[[None, None, None]]*144]*144
-        for x in range(1, 4) :
-            # !Todo: config position of filename
-            with Image.open(filename[x]) as img :
-                pixels = img.crop((1639, 1439, 1711, 1511)).load()
-                for i in range(72) :
-                    for j in range(72) :
-                        color = classify(pixels[i,j])
-                        train_data[i][j][x-1] = color
-        inputdata.append(train_data)
-
-        label = [[[0]*15 for i in range(144)] for j in range(144)]
-        with Image.open(filename[0]) as img:
-            pixels = img.crop((1639, 1439, 1711, 1511)).load()
-            for i in range(72) :
-                for j in range(72) :
-                    color = classify(pixels[i,j])
-                    label[i][j][color] = 1
-        labeldata.append(label)
-
-    labeldata = np.array(labeldata, dtype=np.uint8)
-    np.save('data/'+datafile_name+'.label.npy', labeldata)
-
-    inputdata = np.array(inputdata, dtype=np.uint8)
-    np.save('data/'+datafile_name+'.input.npy', inputdata)
+    rgb = [channel/255 for channel in pixel]
+    hsv = colorsys.rgb_to_hsv(*rgb)
+    hue = hsv[0]
+    
+    if 0.5 <= hue and hue <= 0.7:
+        return 1
+    else:
+        return 2
 
 def get_filelist(directory):
     files = glob('%s/*.jpg' % directory)
