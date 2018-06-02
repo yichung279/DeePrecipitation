@@ -63,7 +63,7 @@ class ImageLoader():
 
 class DataLoader():
 
-    def __init__(self, file_glob_pattern, batch_size, num_classes = 15):
+    def __init__(self, file_glob_pattern, batch_size, num_classes = 3):
         self.files = glob(file_glob_pattern)
 
         self.num_classes = num_classes
