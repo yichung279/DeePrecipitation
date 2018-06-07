@@ -16,4 +16,4 @@ if __name__ == '__main__':
     y_pred = np.argmax(y_pred, axis = 3)
     y_pred = np.reshape(y_pred, [-1])
 
-    print(classification_report(y_true, y_pred, labels = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14]))
+    print(classification_report(y_true, y_pred, labels = [0,1,2]))
