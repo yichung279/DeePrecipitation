@@ -2,7 +2,7 @@
 
 import numpy as np
 from keras.models import Sequential
-from keras.layers import Dense, Conv2DTranspose, Conv2D, Flatten, MaxPooling2D, UpSampling2D, BatchNormalization
+from keras.layers import Dense, Conv2DTranspose, Conv2D, Flatten, MaxPooling2D, UpSampling2D, BatchNormalization, Activation, Dropout
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint
 
@@ -17,37 +17,44 @@ from utils import DataLoader
 
 def build_model():
     model = Sequential()
-
     model.add(Conv2D(filters = 64, kernel_size = (3, 3), padding = 'same', input_shape = (72, 72, 9)))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.5))
     model.add(Conv2D(filters = 64, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.5))
     model.add(MaxPooling2D(pool_size = (2, 2)))
 
     model.add(Conv2D(filters = 128, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.4))
     model.add(Conv2D(filters = 128, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.4))
     model.add(MaxPooling2D(pool_size = (2, 2)))
 
     model.add(Conv2D(filters = 256, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.3))
     model.add(Conv2D(filters = 256, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.3))
     model.add(MaxPooling2D(pool_size = (2, 2)))
 
     model.add(Conv2D(filters = 256, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.2))
     model.add(Conv2D(filters = 256, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.2))
 
     model.add(Conv2D(filters = 512, kernel_size = (3, 3), padding = 'valid'))
     model.add(BatchNormalization())
@@ -56,6 +63,7 @@ def build_model():
     model.add(Conv2DTranspose(filters = 512, kernel_size = (3, 3), padding = 'valid'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
+    model.add(Dropout(0.2))
 
     model.add(Conv2DTranspose(filters = 256, kernel_size = (3, 3), padding = 'same'))
     model.add(BatchNormalization())
