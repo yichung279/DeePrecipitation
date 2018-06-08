@@ -4,5 +4,6 @@ model/
 feature/
 output/
 __pycache__/
+logs/
 *.png
 test*
