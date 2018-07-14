@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 import sys,time
 import colorsys
 from glob import glob
-from pprint import pprint
 from PIL import Image
 from queue import Queue
 import numpy as np
@@ -15,9 +14,13 @@ from utils import ImageLoader
 def is_complete(tstamps):
     delta = timedelta(seconds = 600)
 
-    for i in range(len(tstamps) - 1):
-        if datetime.strptime(tstamps[i], "%Y%m%d%H%M") - datetime.strptime(tstamps[i + 1], "%Y%m%d%H%M") != delta:
+    if datetime.strptime(tstamps[0], "%Y%m%d%H%M") - datetime.strptime(tstamps[1], "%Y%m%d%H%M") != 2 * delta:
+        return False
+
+    for i in range(len(tstamps) - 2):
+        if datetime.strptime(tstamps[1 + i], "%Y%m%d%H%M") - datetime.strptime(tstamps[2 + i], "%Y%m%d%H%M") != delta:
             return False
+
 
     return True
 
@@ -39,24 +42,66 @@ def get_filelist(directory):
     files = glob('%s/*.jpg' % directory)
     files.extend(glob('%s/*.png' % directory))
 
-    even_day = []
-    odd_day = []
+    spring_even_day = []
+    spring_odd_day = []
+    summer_even_day = []
+    summer_odd_day = []
+    fall_even_day = []
+    fall_odd_day = []
+    winter_even_day = []
+    winter_odd_day = []
 
     for f in files:
-        match = re.search('CV1_3600_[0-9]{6}([0-9]{2})[0-9]{4}\.(jpg|png)', f)
-        date = int(match.group(1))
+        match = re.search('CV1_3600_[0-9]{4}([0-9]{2})([0-9]{2})[0-9]{4}\.(jpg|png)', f)
+        month = int(match.group(1))
+        date = int(match.group(2))
 
-        if date % 2 == 0:
-            even_day.append(f)
-        else:
-            odd_day.append(f)
+        if 3 <= month and month <= 5:
+            if date % 2 == 0:
+                spring_even_day.append(f)
+            else:
+                spring_odd_day.append(f)
+        elif 6 <= month and month <= 8:
+            if date % 2 == 0:
+                summer_even_day.append(f)
+            else:
+                summer_odd_day.append(f)
+        elif 9 <= month and month <= 11:
+            if date % 2 == 0:
+                fall_even_day.append(f)
+            else:
+                fall_odd_day.append(f)
+        elif month == 12 or month == 1 or month == 2:
+            if date % 2 == 0:
+                winter_even_day.append(f)
+            else:
+                winter_odd_day.append(f)
 
-    even_day.sort()
-    even_day.reverse()
-    odd_day.sort()
-    odd_day.reverse()
 
-    return even_day, odd_day
+    spring_even_day.sort()
+    spring_even_day.reverse()
+    spring_odd_day.sort()
+    spring_odd_day.reverse()
+    
+    summer_even_day.sort()
+    summer_even_day.reverse()
+    summer_odd_day.sort()
+    summer_odd_day.reverse()
+    
+    fall_even_day.sort()
+    fall_even_day.reverse()
+    fall_odd_day.sort()
+    fall_odd_day.reverse()
+    
+    winter_even_day.sort()
+    winter_even_day.reverse()
+    winter_odd_day.sort()
+    winter_odd_day.reverse()
+
+    return spring_even_day, spring_odd_day,\
+           summer_even_day, summer_odd_day,\
+           fall_even_day, fall_odd_day,\
+           winter_even_day, winter_odd_day
 
 def get_image_pixel(file):
     with Image.open(file) as f:
@@ -82,7 +127,7 @@ def get_classification(pixels):
     return arr
 
 
-def build_feature(filelist, dest_prefix, days = 3):
+def build_feature(filelist, dest_prefix, days = 4):
     features = []
 
     image_loader = ImageLoader(cache_size = 10)
@@ -91,9 +136,9 @@ def build_feature(filelist, dest_prefix, days = 3):
 
     for i in range(len(filelist) - days):
         data = [filelist[i + j] for j in range(days + 1)]
-
+        data.pop(1)
         # check images is continuous
-        tstamps = [re.search('CV1_3600_([0-9]{12})\.(jpg|png)', data[j]).group(1) for j in range(days + 1)]
+        tstamps = [re.search('CV1_3600_([0-9]{12})\.(jpg|png)', data[j]).group(1) for j in range(len(data))]
 
         if not is_complete(tstamps):
             continue
@@ -127,14 +172,17 @@ if __name__ ==  '__main__':
         [ 30, 200,   0],        # 2
         [200,   0, 100]         # 2
     ] 
-
-    for pixel in pixels:
-        print(classify(np.array(pixel)))
     '''
-    even_day, odd_day = get_filelist('image_ml')
-
+    spring_even_day, spring_odd_day, summer_even_day, summer_odd_day,\
+    fall_even_day, fall_odd_day, winter_even_day, winter_odd_day, = get_filelist('image_ml')
     if not os.path.isdir('feature'):
         os.makedirs('feature')
 
-    build_feature(even_day, dest_prefix = 'feature/train')
-    build_feature(odd_day, dest_prefix = 'feature/valid')
+    #build_feature(spring_even_day, dest_prefix = 'feature/spring_train')
+    #build_feature(spring_odd_day , dest_prefix = 'feature/spring_valid')
+    build_feature(summer_even_day, dest_prefix = 'feature/summer_train')
+    build_feature(summer_odd_day , dest_prefix = 'feature/summer_valid')
+    build_feature(fall_even_day  , dest_prefix = 'feature/fall_train')
+    build_feature(fall_odd_day   , dest_prefix = 'feature/fall_valid')
+    build_feature(winter_even_day, dest_prefix = 'feature/winter_train')
+    build_feature(winter_odd_day, dest_prefix = 'feature/winter_valid')
