@@ -102,7 +102,7 @@ class DataLoader():
 
 if __name__ == '__main__':
 
-    data_loader = DataLoader(file_glob_pattern = 'feature/train.*.npy',
+    data_loader = DataLoader(file_glob_pattern = 'feature/*train.*.npy',
                              batch_size = 24)
 
     print(len(data_loader))
