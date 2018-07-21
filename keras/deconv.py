@@ -128,15 +128,15 @@ if __name__ == '__main__':
         valid_size = 14457
     else:
         os._exit(0)
-    model_name = 'd_0.2_w_1_2_10'
+    model_name = 'd_0.2_w_1_1_10000'
 
     batch_size = 72
     epochs = 100
 
     class_weight = np.zeros((72 * 72, 3))
     class_weight[:, 0] += 1
-    class_weight[:, 1] += 2
-    class_weight[:, 2] += 10
+    class_weight[:, 1] += 1
+    class_weight[:, 2] += 10000
 
     train_loader = DataLoader(file_glob_pattern = 'feature/' + season + 'train.*.npy', batch_size = batch_size)
     valid_loader = DataLoader(file_glob_pattern = 'feature/' + season + 'valid.*.npy', batch_size = batch_size)

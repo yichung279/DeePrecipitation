@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
     model = load_model('model/deconv.keras.h5')
     pred = model.predict(x_te[:50])
+    # pred = np.argmax(pred, axis = 2)
     pred = np.argmax(pred, axis = 3)
 
     for idx, img_pred in enumerate(pred):
