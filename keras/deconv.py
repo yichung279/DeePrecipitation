@@ -104,7 +104,7 @@ def build_model():
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('season', help='spring/summer/fall/winter')
+    parser.add_argument('season', help='spring/summer/fall/winter/all')
     args = parser.parse_args()
     
     if args.season == 'spring':
@@ -123,6 +123,10 @@ if __name__ == '__main__':
         season = 'winter_'
         train_size = 5411
         valid_size = 5827
+    elif args.season == 'all':
+        season = ''
+        train_size = 13527 
+        valid_size = 14457
     else:
         os._exit(0)
     model_name = 'dropout0.2'
