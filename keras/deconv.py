@@ -3,7 +3,7 @@
 import numpy as np
 import argparse
 from keras.models import Sequential
-from keras.layers import Dense, Conv2DTranspose, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Activation, Dropout, Reshape 
+from keras.layers import Dense, Conv2DTranspose, Conv2D, MaxPooling2D, UpSampling2D, BatchNormalization, Activation, Dropout, Reshape
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, TensorBoard
 
@@ -94,7 +94,6 @@ def build_model():
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(Conv2DTranspose(filters = 3, kernel_size = (3, 3), padding = 'same', activation = 'softmax'))
-
     model.add(Reshape((-1, 3)))
 
     model.summary()
@@ -134,14 +133,17 @@ if __name__ == '__main__':
     batch_size = 72
     epochs = 100
 
-    class_weight = {0: 1.,1: 5.,2: 10.}
+    class_weight = np.zeros((72 * 72, 3))
+    class_weight[:, 0] += 1
+    class_weight[:, 1] += 2
+    class_weight[:, 2] += 10
 
     train_loader = DataLoader(file_glob_pattern = 'feature/' + season + 'train.*.npy', batch_size = batch_size)
-    valid_loader = DataLoader(file_glob_pattern = 'feature/' + season + 'valid.class_weight.*.npy', batch_size = batch_size)
+    valid_loader = DataLoader(file_glob_pattern = 'feature/' + season + 'valid.*.npy', batch_size = batch_size)
     model_ckpt = ModelCheckpoint('model/'+ model_name + '.' + season + 'model.keras.h5', verbose = 1, save_best_only = True)
     tensorboard = TensorBoard(log_dir='./logs/' + season + model_name, histogram_freq=0, write_graph=True, write_images=False)
 
     model = build_model()
     model.compile(loss = 'categorical_crossentropy', optimizer = Adam(lr = 1e-4), metrics = ['accuracy'])
-    history = model.fit_generator(train_loader, class_weight=class_weight, steps_per_epoch = train_size // batch_size, epochs = epochs, validation_data = valid_loader, validation_steps = valid_size // batch_size
-            , callbacks = [model_ckpt, tensorboard])
+    model.fit_generator(train_loader, class_weight=class_weight, steps_per_epoch = train_size // batch_size, epochs = epochs, validation_data = valid_loader, validation_steps = valid_size // batch_size
+           , callbacks = [model_ckpt, tensorboard])

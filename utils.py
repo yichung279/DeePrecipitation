@@ -98,6 +98,8 @@ class DataLoader():
         batch, self.holder = np.split(self.holder, [self.batch_size], axis = 0)
         x, y = np.split(batch.astype(float), [9], axis = 3)
 
+        y = y.reshape((-1, 72*72))
+
         return x, to_categorical(y, num_classes = self.num_classes)
 
 if __name__ == '__main__':
