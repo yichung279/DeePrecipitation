@@ -96,13 +96,18 @@ class DataLoader():
             self.load()
 
         batch, self.holder = np.split(self.holder, [self.batch_size], axis = 0)
-        x, y = np.split(batch.astype(float), [9], axis = 3)
+        imgs, y = np.split(batch.astype(float), [9], axis = 3)
+        img1, img2, img3 = np.split(imgs, 3, axis = 3)
 
-        return x, to_categorical(y, num_classes = self.num_classes)
+        x = [0] * imgs.shape[0]
+        for idx in range(imgs.shape[0]):
+            x[idx] = [img1[idx], img2[idx], img3[idx]]
+
+        return np.array(x), to_categorical(y, num_classes = self.num_classes)
 
 if __name__ == '__main__':
 
-    data_loader = DataLoader(file_glob_pattern = 'feature/*train.*.npy',
-                             batch_size = 24)
+    data_loader = DataLoader(file_glob_pattern = 'feature/train.*.npy', batch_size = 72)
+    data = data_loader.__next__()
+    print(np.array(data[0]).shape)
 
-    print(len(data_loader))

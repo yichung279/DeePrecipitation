@@ -3,7 +3,8 @@
 import numpy as np
 import argparse
 from keras.models import Sequential
-from keras.layers import Dense, Conv2DTranspose, Conv2D, Flatten, MaxPooling2D, UpSampling2D, BatchNormalization, Activation, Dropout, regularizers
+from keras.layers import Dense, Conv2DTranspose, Conv2D, Flatten, MaxPooling2D, UpSampling2D, \
+        BatchNormalization, Activation,Dropout, regularizers, ConvLSTM2D
 from keras.optimizers import Adam
 from keras.callbacks import ModelCheckpoint, TensorBoard
 
@@ -21,7 +22,17 @@ def build_model():
     # model.add(Dropout(0.2))
     model = Sequential()
 
-    model.add(Conv2D(filters = 64, kernel_size = (3, 3), padding = 'same', input_shape = (72, 72, 9)))
+    model.add(ConvLSTM2D(
+        filters = 5, 
+        kernel_size = (3, 3),
+        padding = 'same',  
+        input_shape = (3, 72, 72, 3),    # channel_last as defult
+        return_sequences = False,
+        stateful = False
+    ))
+    model.add(BatchNormalization())
+    #model.add(Conv2D(filters = 64, kernel_size = (3, 3), padding = 'same', input_shape = (72, 72, 9)))
+    model.add(Conv2D(filters = 64, kernel_size = (3, 3), padding = 'same'))
     model.add(Dropout(0.2))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
@@ -129,7 +140,7 @@ if __name__ == '__main__':
         valid_size = 14457
     else:
         os._exit(0)
-    model_name = 'dropout0.2'
+    model_name = 'convLSTM2D'
 
     batch_size = 72
     epochs = 100

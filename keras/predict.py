@@ -6,19 +6,25 @@ from sklearn.metrics import classification_report
 if __name__ == '__main__':
 
     # model = load_model('model/dropout0.2.model.keras.h5')
-    model = load_model('model/deconv.keras.h5')
+    model = load_model('model/convLSTM2D.model.keras.h5')
     
-    season='spring_'
-    num=3
+    season=''
+    num=5
 
     data = []
     for i in range(num):
         data.extend(np.load('feature/'+season+'valid.'+str(i*2)+'.npy'))
-    x_te, y_te = np.split(data, [9], axis = 3)
+    imgs, y_te = np.split(data, [9], axis = 3)
 
     y_true = np.reshape(y_te, [-1])
 
-    y_pred = model.predict(x_te)
+    img1, img2, img3 = np.split(imgs, 3, axis = 3)
+
+    x_te = [0] * num * 1000
+    for idx in range(num * 1000):
+        x_te[idx] = [img1[idx], img2[idx], img3[idx]]
+ 
+    y_pred = model.predict(np.array(x_te))
     y_pred = np.argmax(y_pred, axis = 3)
     y_pred = np.reshape(y_pred, [-1])
 
