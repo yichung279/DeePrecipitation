@@ -14,11 +14,11 @@ if __name__ == '__main__':
     x_te, y_te = np.split(data, [9], axis = 3)
     y_te = np.reshape(y_te, [-1, 72, 72])
 
-    model = load_model('model/deconv.keras.h5')
+    model = load_model('model/d_0.2_w_1_2_10.model.keras.h5')
     pred = model.predict(x_te[:50])
-    # pred = np.argmax(pred, axis = 2)
-    pred = np.argmax(pred, axis = 3)
-
+    pred = np.argmax(pred, axis = 2)
+    pred = np.reshape(pred, (-1, pred.shape[1], pred.shape[1]))
+    
     for idx, img_pred in enumerate(pred):
-        write_image('output/valid.%03d.png' % idx, img_pred)
-        write_image('output/true.%03d.png' % idx, y_te[idx])
+        write_image('output-cw/valid.%03d.png' % idx, img_pred)
+        write_image('output-cw/true.%03d.png' % idx, y_te[idx])
