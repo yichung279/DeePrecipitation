@@ -17,7 +17,7 @@ if __name__ == '__main__':
     model = load_model('model/d_0.2_w_1_2_10.model.keras.h5')
     pred = model.predict(x_te[:50])
     pred = np.argmax(pred, axis = 2)
-    pred = np.reshape(pred, (-1, pred.shape[1], pred.shape[1]))
+    pred = np.reshape(pred, (-1, sqrt(pred.shape[1]), sqrt(pred.shape[1])))
     
     for idx, img_pred in enumerate(pred):
         write_image('output-cw/valid.%03d.png' % idx, img_pred)
