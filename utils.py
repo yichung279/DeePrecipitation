@@ -33,12 +33,31 @@ class ImageLoader():
         self.__cache = {}
         self.__file_manager = Queue()
 
-    def __get_image_pixel(self, file):
+    def __get_image_pixel(self, file, area):
+        if area == 'A':
+            a = 0.5
+            b = -1
+        elif area == 'B':
+            a = 0
+            b = 0
+        elif area == 'C':
+            a = 0
+            b = 1
+        elif area == 'D':
+            a = 0
+            b = 2
+        elif area == 'E':
+            a = 0.5
+            b = 3
+        elif area == 'F':
+            a = 1
+            b = 4
+ 
         if file in self.__cache:
             return self.__cache[file]
 
         with Image.open(file) as f:
-            img_crop = np.array(f.crop((1639, 1439, 1711, 1511)).convert('RGB'), dtype = np.uint8)
+            img_crop = np.array(f.crop((1639 + 72 * a, 1439 - 72 * b, 1711 + 72 * a, 1511 - 72 * b)), dtype = np.uint8)
 
             for i in range(img_crop.shape[0]):
                 for j in range(img_crop.shape[1]):
