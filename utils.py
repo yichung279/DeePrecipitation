@@ -33,7 +33,7 @@ class ImageLoader():
         self.__cache = {}
         self.__file_manager = Queue()
 
-    def __get_image_pixel(self, file):
+    def __get_image_pixel(self, file, area):
         if area == 'A':
             a = 0.5
             b = -1
@@ -61,6 +61,10 @@ class ImageLoader():
 
             for i in range(img_crop.shape[0]):
                 for j in range(img_crop.shape[1]):
+                    '''
+                    if img_crop[i][j][0] == 255 and img_crop[i][j][1] == 255 and img_crop[i][j][2] == 255:
+                        self.
+                    '''
                     if img_crop[i][j][0] == img_crop[i][j][1] and img_crop[i][j][0] == img_crop[i][j][2]:
                         img_crop[i][j][0] = 0
                         img_crop[i][j][1] = 0
@@ -71,8 +75,8 @@ class ImageLoader():
 
         return img_crop
 
-    def read(self, image):
-        img = self.__get_image_pixel(image)
+    def read(self, image, area):
+        img = self.__get_image_pixel(image, area)
 
         while self.__file_manager.qsize() > self.cache_size:
             key = self.__file_manager.get()

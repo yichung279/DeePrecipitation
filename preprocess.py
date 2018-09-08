@@ -112,5 +112,5 @@ if __name__ ==  '__main__':
     if not os.path.isdir('no_compensate_feature'):
         os.makedirs('no_compensate_feature')
     for i in 'ABCEDF':
-        build_feature(even_day, dest_prefix = 'feature/%s.train' % i, area = i)
-        build_feature(odd_day , dest_prefix = 'feature/%s,valid' % i, area = i)
+        build_feature(even_day, dest_prefix = 'no_compensate_feature/%s.train' % i, area = i)
+        build_feature(odd_day , dest_prefix = 'no_compensate_feature/%s.valid' % i, area = i)
