@@ -6,11 +6,12 @@ from queue import Queue
 from PIL import Image
 from keras.utils import to_categorical
 import cv2
+import colorsys
 
 label2pixel = [
     [  0,   0,   0],
     [255, 150,   0],
-    [  3, 199,   0],
+    [  0,   0, 200],
 ]
 
 def write_image(filename, img_cls):
@@ -32,6 +33,52 @@ class ImageLoader():
 
         self.__cache = {}
         self.__file_manager = Queue()
+    def __compensate(self, img):
+        for i in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                
+                mx =max(img[i][j])
+                mn =min(img[i][j])
+                s = 0 if mx == 0 else 1- mn/mx
+                
+                if mx < 150 and s < 0.3:
+                #if img[i][j][0] < 200 and img[i][j][0] ==  img[i][j][1] and img[i][j][1] ==  img[i][j][2]:
+                    img[i][j] = self.__vote(i, j, img)
+        return img
+    
+    def __vote(self, i, j, img):
+        color2rgb = {'white' : (  0,   0,   0),
+                     'blue'  : (  0,   0, 200),
+                     'green' : (  0, 200,   0),
+                     'yellow': (200, 250,   0),
+                     'red'   : (200,   0,   0),
+                     'purple': (200,   0, 200)}
+        color = {'white': 0, 'blue': 0, 'green': 0, 'yellow': 0, 'red': 0, 'purple': 0}
+
+        top = i - 2 if i - 2 >= 0 else 0
+        left = j - 2 if j - 2 >= 0 else 0
+        bottom = i + 2 if i + 2 < img.shape[0] else img.shape[0] - 1
+        right = j + 2 if j + 2 < img.shape[1] else img.shape[1]  - 1
+
+        for m in range(top, bottom + 1):
+            for n in range(left, right + 1):
+               rgb = [channel/255 for channel in img[m][n]]
+               hsv = colorsys.rgb_to_hsv(*rgb)     # hsv = (h, s, v)
+
+               if rgb[0] == rgb[1] and rgb[1] == rgb[2]:     # grayscale
+                   color['white'] += 1
+               elif hsv[0] > 0.95 or hsv[0] < 0.083:
+                   color['red'] += 1
+               elif hsv[0] < 0.194:
+                   color['yellow'] += 1
+               elif hsv[0] < 0.388:
+                   color['green'] += 1
+               elif hsv[0] < 0.722:
+                   color['blue'] += 1
+               elif hsv[0] < 0.95:
+                   color['purple'] += 1
+        
+        return color2rgb[max(color, key=color.get)]
 
     def __get_image_pixel(self, file, area):
         if area == 'A':
@@ -58,13 +105,10 @@ class ImageLoader():
 
         with Image.open(file) as f:
             img_crop = np.array(f.crop((1639 + 72 * a, 1439 - 72 * b, 1711 + 72 * a, 1511 - 72 * b)), dtype = np.uint8)
+            img_crop = self.__compensate(img_crop)
 
             for i in range(img_crop.shape[0]):
                 for j in range(img_crop.shape[1]):
-                    '''
-                    if img_crop[i][j][0] == 255 and img_crop[i][j][1] == 255 and img_crop[i][j][2] == 255:
-                        self.
-                    '''
                     if img_crop[i][j][0] == img_crop[i][j][1] and img_crop[i][j][0] == img_crop[i][j][2]:
                         img_crop[i][j][0] = 0
                         img_crop[i][j][1] = 0
