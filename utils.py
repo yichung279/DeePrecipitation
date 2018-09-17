@@ -7,7 +7,7 @@ from PIL import Image
 from keras.utils import to_categorical
 import cv2
 import colorsys
-
+#BGR
 label2pixel = [
     [  0,   0,   0],
     [255, 150,   0],
@@ -132,7 +132,7 @@ class DataLoader():
 
     def __init__(self, file_glob_pattern, batch_size, num_classes = 3):
         self.files = glob(file_glob_pattern)
-
+        print(self.files)
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.ptr = 1
@@ -164,6 +164,7 @@ class DataLoader():
 
         batch, self.holder = np.split(self.holder, [self.batch_size], axis = 0)
         imgs, y = np.split(batch.astype(float), [9], axis = 3)
+        
         img1, img2, img3 = np.split(imgs, 3, axis = 3)
 
         x = [0] * imgs.shape[0]
@@ -171,6 +172,7 @@ class DataLoader():
             x[idx] = [img1[idx], img2[idx], img3[idx]]
 
         return np.array(x), to_categorical(y, num_classes = self.num_classes)
+        # return imgs, to_categorical(y, num_classes = self.num_classes)
 
 if __name__ == '__main__':
 
