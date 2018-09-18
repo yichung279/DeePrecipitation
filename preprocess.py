@@ -24,7 +24,6 @@ def is_complete(tstamps):
 
     return True
 
-#!TODO: classification logic
 def classify(pixel) :
     if np.array_equal([0, 0, 0], pixel):
         return 0
@@ -55,12 +54,10 @@ def get_filelist(directory):
         else:
             odd_day.append(f)
 
-
     even_day.sort()
     even_day.reverse()
     odd_day.sort()
     odd_day.reverse()
-    
 
     return even_day, odd_day
 
@@ -110,9 +107,9 @@ def build_feature(filelist, dest_prefix, area, days = 4):
 
 if __name__ ==  '__main__':
     even_day, odd_day, = get_filelist('radar_images')
-    
-    if not os.path.isdir('no_compensate_feature'):
-        os.makedirs('no_compensate_feature')
+            
+    if not os.path.isdir('feature'):
+        os.makedirs('feature')
     for i in 'ABCEDF':
         build_feature(even_day, dest_prefix = 'feature/%s.train' % i, area = i)
-        build_feature(odd_day , dest_prefix = 'feature/%s,valid' % i, area = i)
+        build_feature(odd_day , dest_prefix = 'feature/%s.valid' % i, area = i)

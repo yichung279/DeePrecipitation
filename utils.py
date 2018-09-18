@@ -6,11 +6,12 @@ from queue import Queue
 from PIL import Image
 from keras.utils import to_categorical
 import cv2
-
+import colorsys
+#BGR
 label2pixel = [
     [  0,   0,   0],
     [255, 150,   0],
-    [  3, 199,   0],
+    [  0,   0, 200],
 ]
 
 def write_image(filename, img_cls):
@@ -32,6 +33,53 @@ class ImageLoader():
 
         self.__cache = {}
         self.__file_manager = Queue()
+
+    def __compensate(self, img):
+        for i in range(img.shape[0]):
+            for j in range(img.shape[1]):
+                
+                mx =max(img[i][j])
+                mn =min(img[i][j])
+                s = 0 if mx == 0 else 1- mn/mx
+                
+                if mx < 150 and s < 0.3:
+                #if img[i][j][0] < 200 and img[i][j][0] ==  img[i][j][1] and img[i][j][1] ==  img[i][j][2]:
+                    img[i][j] = self.__vote(i, j, img)
+        return img
+    
+    def __vote(self, i, j, img):
+        color2rgb = {'white' : (  0,   0,   0),
+                     'blue'  : (  0,   0, 200),
+                     'green' : (  0, 200,   0),
+                     'yellow': (200, 250,   0),
+                     'red'   : (200,   0,   0),
+                     'purple': (200,   0, 200)}
+        color = {'white': 0, 'blue': 0, 'green': 0, 'yellow': 0, 'red': 0, 'purple': 0}
+
+        top = i - 2 if i - 2 >= 0 else 0
+        left = j - 2 if j - 2 >= 0 else 0
+        bottom = i + 2 if i + 2 < img.shape[0] else img.shape[0] - 1
+        right = j + 2 if j + 2 < img.shape[1] else img.shape[1]  - 1
+
+        for m in range(top, bottom + 1):
+            for n in range(left, right + 1):
+               rgb = [channel/255 for channel in img[m][n]]
+               hsv = colorsys.rgb_to_hsv(*rgb)     # hsv = (h, s, v)
+
+               if rgb[0] == rgb[1] and rgb[1] == rgb[2]:     # grayscale
+                   color['white'] += 1
+               elif hsv[0] > 0.95 or hsv[0] < 0.083:
+                   color['red'] += 1
+               elif hsv[0] < 0.194:
+                   color['yellow'] += 1
+               elif hsv[0] < 0.388:
+                   color['green'] += 1
+               elif hsv[0] < 0.722:
+                   color['blue'] += 1
+               elif hsv[0] < 0.95:
+                   color['purple'] += 1
+        
+        return color2rgb[max(color, key=color.get)]
 
     def __get_image_pixel(self, file, area):
         if area == 'A':
@@ -58,6 +106,7 @@ class ImageLoader():
 
         with Image.open(file) as f:
             img_crop = np.array(f.crop((1639 + 72 * a, 1439 - 72 * b, 1711 + 72 * a, 1511 - 72 * b)), dtype = np.uint8)
+            img_crop = self.__compensate(img_crop)
 
             for i in range(img_crop.shape[0]):
                 for j in range(img_crop.shape[1]):
@@ -71,8 +120,8 @@ class ImageLoader():
 
         return img_crop
 
-    def read(self, image):
-        img = self.__get_image_pixel(image)
+    def read(self, image, area):
+        img = self.__get_image_pixel(image, area)
 
         while self.__file_manager.qsize() > self.cache_size:
             key = self.__file_manager.get()
@@ -84,7 +133,7 @@ class DataLoader():
 
     def __init__(self, file_glob_pattern, batch_size, num_classes = 3):
         self.files = glob(file_glob_pattern)
-
+        print(self.files)
         self.num_classes = num_classes
         self.batch_size = batch_size
         self.ptr = 1
@@ -115,15 +164,20 @@ class DataLoader():
             self.load()
 
         batch, self.holder = np.split(self.holder, [self.batch_size], axis = 0)
-        x, y = np.split(batch.astype(float), [9], axis = 3)
+        imgs, y = np.split(batch.astype(float), [9], axis = 3)
+        
+        img1, img2, img3 = np.split(imgs, 3, axis = 3)
 
-        y = y.reshape((-1, 72*72))
+        x = [0] * imgs.shape[0]
+        for idx in range(imgs.shape[0]):
+            x[idx] = [img1[idx], img2[idx], img3[idx]]
 
-        return x, to_categorical(y, num_classes = self.num_classes)
+        return np.array(x), to_categorical(y, num_classes = self.num_classes)
+        # return imgs, to_categorical(y, num_classes = self.num_classes)
 
 if __name__ == '__main__':
 
-    data_loader = DataLoader(file_glob_pattern = 'feature/*train.*.npy',
-                             batch_size = 24)
+    data_loader = DataLoader(file_glob_pattern = 'feature/train.*.npy', batch_size = 72)
+    data = data_loader.__next__()
+    print(np.array(data[0]).shape)
 
-    print(len(data_loader))
