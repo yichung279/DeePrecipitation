@@ -72,7 +72,7 @@ def get_classification(pixels):
     return arr
 
 
-def build_feature(filelist, dest_prefix, area, days = 4):
+def build_feature(filelist, dest_prefix, area, days = 4, sequence = True):
     features = []
 
     image_loader = ImageLoader(cache_size = 10)
@@ -91,7 +91,13 @@ def build_feature(filelist, dest_prefix, area, days = 4):
         feature = [image_loader.read(image, area) for image in data]
 
         label = get_classification(feature[0])
-        feature = np.concatenate(feature[1:] + [label], axis = 2)
+        
+        if sequence:
+            feature = np.array(feature[1:])
+            label = np.array(label)
+            feature = np.array([feature, label])
+        else:
+            feature = np.concatenate(feature[1:] + [label], axis = 2)
 
         features.append(feature)
 
@@ -106,10 +112,10 @@ def build_feature(filelist, dest_prefix, area, days = 4):
     np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
 
 if __name__ ==  '__main__':
-    even_day, odd_day, = get_filelist('radar_images')
+    even_day, odd_day, = get_filelist('data')
             
-    if not os.path.isdir('feature'):
-        os.makedirs('feature')
-    for i in 'ABCEDF':
-        build_feature(even_day, dest_prefix = 'feature/%s.train' % i, area = i)
-        build_feature(odd_day , dest_prefix = 'feature/%s.valid' % i, area = i)
+    if not os.path.isdir('feature/sequence'):
+        os.makedirs('feature/sequence')
+    for i in 'ABCDE':
+        build_feature(even_day, dest_prefix = 'feature/sequence/%s.train' % i, area = i, sequence = False)
+        build_feature(odd_day,  dest_prefix = 'feature/sequence/%s.valid' % i, area = i, sequence = True)
