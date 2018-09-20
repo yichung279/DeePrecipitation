@@ -72,7 +72,7 @@ def get_classification(pixels):
     return arr
 
 
-def build_feature(filelist, dest_prefix, area, days = 4, sequence = True):
+def build_feature(filelist, dest_prefix, area, days = 4):
     features = []
 
     image_loader = ImageLoader(cache_size = 10)
@@ -92,18 +92,13 @@ def build_feature(filelist, dest_prefix, area, days = 4, sequence = True):
 
         label = get_classification(feature[0])
         
-        if sequence:
-            feature = np.array(feature[1:])
-            label = np.array(label)
-            feature = np.array([feature, label])
-        else:
-            feature = np.concatenate(feature[1:] + [label], axis = 2)
-
-        features.append(feature)
+        feature = np.array(feature[1:])
+        label = np.array(label)
+        features.append({'x': feature, 'label': label})
 
         if len(features) % 1000 == 0:
-            print(idx)
             np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
+            print(idx)
 
             idx += 1
 
@@ -114,8 +109,8 @@ def build_feature(filelist, dest_prefix, area, days = 4, sequence = True):
 if __name__ ==  '__main__':
     even_day, odd_day, = get_filelist('data')
             
-    if not os.path.isdir('feature/sequence'):
-        os.makedirs('feature/sequence')
+    if not os.path.isdir('feature/'):
+        os.makedirs('feature/')
     for i in 'ABCDE':
-        build_feature(even_day, dest_prefix = 'feature/sequence/%s.train' % i, area = i, sequence = False)
-        build_feature(odd_day,  dest_prefix = 'feature/sequence/%s.valid' % i, area = i, sequence = True)
+        build_feature(even_day, dest_prefix = 'feature/%s.train' % i, area = i)
+        build_feature(odd_day,  dest_prefix = 'feature/%s.valid' % i, area = i)
