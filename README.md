@@ -1,6 +1,6 @@
 # DeePrecipitation
 
-DeePrecipitation is a precipitation nocasting system using ML.With radar echo images in last hour,this project predicts a future radar echo image telling weather about ten minutes later.
+DeePrecipitation is a precipitation nocasting system using ML.With radar echo images in last hour,DeePrecipitation predicts a future radar echo image telling weather about ten minutes later.
 ## Setup
 
 1. Install python package: `pip3 install -r requires.txt`
