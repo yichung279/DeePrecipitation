@@ -1,11 +1,10 @@
 data/
 data_old/
 model/
-*feature/
+*feature/*
 output/
 __pycache__/
 logs/
 .env/
 *.png
-test*
 data

@@ -9,7 +9,7 @@ import os
 
 
 def load():
-    feature_dir = 'feature/'
+    feature_dir = 'feature/sequence'
 
     img = []
     y_te = []
