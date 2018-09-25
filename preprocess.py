@@ -94,12 +94,16 @@ def build_feature(filelist, dest_prefix, area, days = 4):
         
         feature = np.array(feature[1:])
         label = np.array(label)
+        
+        ex1, label, ex2 = np.split(label, [4,76], axis=0)
+        ex1, label, ex2 = np.split(label, [4,76], axis=1)
+        
         features.append({'x': feature, 'label': label})
 
         if len(features) % 1000 == 0:
             np.save('%s.%d.npy' % (dest_prefix, idx), np.stack(features, axis = 0))
             print(idx)
-
+            print(label.shape)
             idx += 1
 
             features = []
@@ -108,9 +112,10 @@ def build_feature(filelist, dest_prefix, area, days = 4):
 
 if __name__ ==  '__main__':
     even_day, odd_day, = get_filelist('data')
-            
-    if not os.path.isdir('feature/'):
-        os.makedirs('feature/')
+    feature_dir = 'feature/sequence_external/'
+
+    if not os.path.isdir(feature_dir):
+        os.makedirs(feature_dir)
     for i in 'ABCDE':
-        build_feature(even_day, dest_prefix = 'feature/%s.train' % i, area = i)
-        build_feature(odd_day,  dest_prefix = 'feature/%s.valid' % i, area = i)
+        build_feature(even_day, dest_prefix = '%s%s.train' % (feature_dir, i), area = i)
+        build_feature(odd_day,  dest_prefix = '%s%s.valid' % (feature_dir, i), area = i)

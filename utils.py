@@ -105,7 +105,7 @@ class ImageLoader():
             return self.__cache[file]
 
         with Image.open(file) as f:
-            img_crop = np.array(f.crop((1639 + 72 * a, 1439 - 72 * b, 1711 + 72 * a, 1511 - 72 * b)), dtype = np.uint8)
+            img_crop = np.array(f.crop((1639-4 + 72 * a, 1439-4 - 72 * b, 1711+4 + 72 * a, 1511+4 - 72 * b)), dtype = np.uint8)
             img_crop = self.__compensate(img_crop)
 
             for i in range(img_crop.shape[0]):
